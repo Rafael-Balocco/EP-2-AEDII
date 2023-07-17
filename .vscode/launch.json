@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Debugar Programa",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/LuisHenriqueFernandesRamires",
+            "args": ["teste.txt"],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "C/C++: gcc.exe build active file"
+        }
+    ]
+}
