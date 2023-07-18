@@ -478,10 +478,6 @@ int main (int argc, char* argv[]) {
             fscanf(entrada, "\n");
         }
 
-        else if (comando == 'a'){
-            int z = 0;
-        }
-
         fscanf(entrada, "%c", &comando);
     }
 
