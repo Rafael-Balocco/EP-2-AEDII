@@ -39,7 +39,15 @@ void inserirPrimDir (NO* n, int chave) {
 
     int i = n -> numChaves;
 
+    int j = 0 ; 
+
     if (n -> folha) {
+
+        for ( j ; j < i ; j++){
+            
+            if(n->chave[j] == chave ) return;
+        
+        }
 
         while (i > 0 && chave < n -> chave[i - 1]) {
 
@@ -83,16 +91,13 @@ void splitFilho (NO* n1, int i, NO* n2) {
         }
     }
 
-    if (n2 -> folha) {
-
-        if (n2 -> prox != NULL) {
+    if (n2 -> prox != NULL) {
 
             aux = n2 -> prox;
-        }
-        n2 -> prox = p;
-        p -> prox = aux;
     }
-
+    n2 -> prox = p;
+    p -> prox = aux;
+    
     n2 -> numChaves = t - 1;
 
 
@@ -114,6 +119,7 @@ void splitFilho (NO* n1, int i, NO* n2) {
     n1 -> numChaves++;
 
     inserirPrimDir(p, n2 -> chave[t - 1]);
+
 }
 
 
@@ -141,6 +147,8 @@ void inserirDifCheio (NO* n, int chave) {
         if (n -> ponteiros[i] -> numChaves == (2 * t - 1)) {
 
             splitFilho(n, i, n -> ponteiros[i]);
+
+            n->ponteiros[i]->prox = n->ponteiros[i+1];
 
 
             if (chave > n -> chave[i]) i++;
@@ -469,7 +477,10 @@ int main (int argc, char* argv[]) {
             fprintf(saida, "\n");
             fscanf(entrada, "\n");
         }
-        
+
+        else if (comando == 'a'){
+            int z = 0;
+        }
 
         fscanf(entrada, "%c", &comando);
     }
