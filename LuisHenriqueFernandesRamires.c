@@ -24,6 +24,18 @@ typedef struct {
 
 
 
+Arv* criaArvore () ;
+void inserePrimDir (NO* n, int chave );
+void split (NO* n1, int i, NO* n2);
+void insereDifCheio (NO* n, int chave) ;
+void insere (Arv* arv, int chave);
+NO* buscaFolha (NO* n);
+void removeChave (NO* p, int chave);
+void deletar (Arv* arv, int chave);
+void printEmOrdem (NO* no, FILE* saida);
+
+////////////////////////////////////////////////////////// inicio algiritmos
+
 Arv* criaArvore () {
 
     Arv* arvore = (Arv*) malloc(sizeof(Arv));
@@ -35,15 +47,16 @@ Arv* criaArvore () {
     return arvore;
 }
 
-void inserirPrimDir (NO* n, int chave) {
+
+void inserePrimDir (NO* n, int chave) {
 
     int i = n -> numChaves;
 
-    int j = 0 ; 
+    int j; 
 
     if (n -> folha) {
 
-        for ( j ; j < i ; j++){
+        for ( j  = 0 ; j < i ; j++){
             
             if(n->chave[j] == chave ) return;
         
@@ -52,6 +65,7 @@ void inserirPrimDir (NO* n, int chave) {
         while (i > 0 && chave < n -> chave[i - 1]) {
 
             n -> chave[i] = n -> chave[i - 1];
+            
             i--;
         }
 
@@ -63,20 +77,21 @@ void inserirPrimDir (NO* n, int chave) {
 
         while (i > 0 && chave < n -> chave[i - 1]) i--;
 
-        inserirPrimDir(n -> ponteiros[i], chave);
+        inserePrimDir(n -> ponteiros[i], chave);
     }
 }
 
-void splitFilho (NO* n1, int i, NO* n2) {
+void split (NO* n1, int i, NO* n2) {
+
+    int j;
 
     NO* p = (NO*) malloc(sizeof(NO));
 
     NO* aux = NULL;
-
-    p -> folha = n2 -> folha;
+    
     p -> numChaves = t - 1;
-    int j;
-
+    p -> folha = n2 -> folha;
+   
 
     for (j = 0; j < t - 1; j++) {
 
@@ -118,12 +133,12 @@ void splitFilho (NO* n1, int i, NO* n2) {
     n1 -> chave[i] = n2 -> chave[t - 1];
     n1 -> numChaves++;
 
-    inserirPrimDir(p, n2 -> chave[t - 1]);
+    inserePrimDir(p, n2 -> chave[t - 1]);
 
 }
 
 
-void inserirDifCheio (NO* n, int chave) {
+void insereDifCheio (NO* n, int chave) {
 
     int i = n -> numChaves;
 
@@ -146,7 +161,7 @@ void inserirDifCheio (NO* n, int chave) {
 
         if (n -> ponteiros[i] -> numChaves == (2 * t - 1)) {
 
-            splitFilho(n, i, n -> ponteiros[i]);
+            split(n, i, n -> ponteiros[i]);
 
             n->ponteiros[i]->prox = n->ponteiros[i+1];
 
@@ -154,12 +169,12 @@ void inserirDifCheio (NO* n, int chave) {
             if (chave > n -> chave[i]) i++;
         }
 
-        inserirDifCheio(n -> ponteiros[i], chave);
+        insereDifCheio(n -> ponteiros[i], chave);
     }
 }
 
 
-void inserir (Arv* arv, int chave) {
+void insere (Arv* arv, int chave) {
 
     NO* raiz = arv ->raiz;
 
@@ -167,45 +182,31 @@ void inserir (Arv* arv, int chave) {
 
         NO* p = (NO*) malloc(sizeof(NO));
 
-        arv -> raiz = p;
-        p -> folha = false;
         p -> numChaves = 0;
         p -> prox = NULL;
         p -> ponteiros[0] = raiz;
+        arv -> raiz = p;
+        p -> folha = false;
 
+        split(p, 0, raiz);
 
-        splitFilho(p, 0, raiz);
-        inserirDifCheio(p, chave);
+        insereDifCheio(p, chave);
+    
     }
     
-    else inserirDifCheio(raiz, chave);
+    else insereDifCheio(raiz, chave);
 }
 
 
-NO* encontrar (NO* n, int chave) {
-
-    int i = 0;
-
-    while (i < n -> numChaves && chave > n -> chave[i]) i++;
-
-
-    if (i < n -> numChaves && chave == n -> chave[i]) return n;
-
-    else if (n -> folha) return NULL;
-
-    else return encontrar(n -> ponteiros[i], chave);
-}
-
-
-NO* acharFolha (NO* n) {
+NO* buscaFolha (NO* n) {
 
     if (n -> folha) return n;
 
-    else return acharFolha (n -> ponteiros[0]);
+    else return buscaFolha (n -> ponteiros[0]);
 }
 
 
-void removerChave (NO* p, int chave) {
+void removeChave (NO* p, int chave) {
 
     int i = 0;
     int j;
@@ -213,17 +214,22 @@ void removerChave (NO* p, int chave) {
     while (i < p -> numChaves && chave > p -> chave[i]) i++;
     
 
-    if (p -> folha) {
+    if (p -> folha) { //ja na folha, so remover
 
         if (i < p -> numChaves && chave == p -> chave[i]) {
 
-            for (j = i; j < p -> numChaves - 1; j++) p -> chave[j] = p -> chave[j + 1];
+            for (j = i; j < p -> numChaves - 1; j++) {
+             
+                p -> chave[j] = p -> chave[j + 1];
+            
+            }
             
             p -> numChaves--;
+        
         }
     }
     
-    else {
+    else { //chegar até a folha
 
         NO* n1 = p -> ponteiros[i];
 
@@ -231,11 +237,11 @@ void removerChave (NO* p, int chave) {
 
             if (n1 -> numChaves >= t) {
 
-                NO* pred = acharFolha(n1 -> ponteiros[n1 -> numChaves]);
+                NO* predecessor = buscaFolha(p);
 
-                p -> chave[i] = pred -> chave[pred -> numChaves - 1];
+                p -> chave[i] = predecessor -> chave[predecessor -> numChaves - 1];
 
-                removerChave(n1, pred -> chave[pred -> numChaves - 1]);
+                removeChave(n1, predecessor -> chave[predecessor -> numChaves - 1]);
             }
             
             else {
@@ -244,11 +250,11 @@ void removerChave (NO* p, int chave) {
 
                 if (n2 -> numChaves >= t) {
 
-                    NO* succ = acharFolha(n2);
+                    NO* sucessor = buscaFolha(n2);
 
-                    p -> chave[i] = succ -> chave[0];
+                    p -> chave[i] = sucessor -> chave[0];
 
-                    removerChave(n2, succ -> chave[0]);
+                    removeChave(n2, sucessor -> chave[0]);
                 }
                 
                 else {
@@ -276,7 +282,7 @@ void removerChave (NO* p, int chave) {
 
                     p -> numChaves--;
 
-                    removerChave(n1, chave);
+                    removeChave(n1, chave);
                 }
             }
         }
@@ -309,7 +315,7 @@ void removerChave (NO* p, int chave) {
                     n1 -> numChaves--;
                 }
                 
-                else if (i > 0 && p -> ponteiros[i - 1] -> numChaves >= t) {
+                else if (i > 0 && p -> ponteiros[i - 1] -> numChaves >= t) { //checando o da esquerda
 
                     n2 = p -> ponteiros[i - 1];
                     n2 -> chave[n2 -> numChaves] = p -> chave[i - 1];
@@ -336,7 +342,7 @@ void removerChave (NO* p, int chave) {
                     if (i < p -> numChaves) {
 
                         n2 = p -> ponteiros[i + 1];
-
+ 
                         n1 -> chave[t - 1] = p -> chave[i];
                         n1 -> ponteiros[t] = n2 -> ponteiros[0];
                         p -> chave[i] = n2 -> chave[0];
@@ -375,23 +381,23 @@ void removerChave (NO* p, int chave) {
                     }
                 }
                 n1 -> numChaves++;
-                removerChave(n1, chave);
+                removeChave(n1, chave);
             }
             
-            else removerChave(n1, chave);
+            else removeChave(n1, chave);
         }
     }
 }
 
 
-void remover (Arv* arv, int chave) {
+
+void deletar (Arv* arv, int chave) {
 
     NO* raiz = arv -> raiz;
 
     if (raiz -> numChaves == 0) return;
-    
 
-    removerChave(raiz, chave);
+    removeChave(raiz, chave);
 
     if (raiz -> numChaves == 0 && !(raiz -> folha)) {
 
@@ -401,7 +407,8 @@ void remover (Arv* arv, int chave) {
 }
 
 
-void inOrder (NO* no, FILE* saida){
+
+void printEmOrdem (NO* no, FILE* saida){
 
     int i;
 
@@ -418,25 +425,47 @@ void inOrder (NO* no, FILE* saida){
         if (!(no -> folha) && i == 0) {
 
             fprintf(saida, "(");     
-            inOrder(no -> ponteiros[i], saida);
+            printEmOrdem(no -> ponteiros[i], saida);
+
         }
 
-        else if (no -> folha && i==0)fprintf(saida, "(");
+        else if (no -> folha && i==0){
 
-        if (!(no -> folha)) fprintf(saida, "%c", ' ');
+            fprintf(saida, "(");
+        } 
+
+        if (!(no -> folha)) {
+            
+            fprintf(saida, "%c", ' ');
+        }
 
         fprintf(saida, "%d", no -> chave[i]);
 
-        if (!(no -> folha)) fprintf(saida, "%c", ' ');
+        if (!(no -> folha)){
+            
+            fprintf(saida, "%c", ' ');
+        } 
 
-        if (i < no -> numChaves - 1 && no -> folha) fprintf(saida, "%c", ' ');
+        if (i < no -> numChaves - 1 && no -> folha){
+            
+            fprintf(saida, "%c", ' ');
+        } 
 
-        if (!(no -> folha)) inOrder(no -> ponteiros[i] -> prox, saida);
+        if (!(no -> folha)){
+            
+            printEmOrdem(no -> ponteiros[i] -> prox, saida);
+        }
     }
 
-    if (no -> folha)fprintf(saida, ")");
+    if (no -> folha){
+        
+        fprintf(saida, ")");
+    }
 
-    if (!(no -> folha))fprintf(saida, ")");
+    if (!(no -> folha)){
+        
+        fprintf(saida, ")");
+    }
 }
 
 
@@ -461,19 +490,19 @@ int main (int argc, char* argv[]) {
 
             fscanf(entrada, "%d", &chave);
             fscanf(entrada, "\n");
-            inserir(arv, chave);
+            insere(arv, chave);
         }
 
         else if (comando == 'r') {
 
             fscanf(entrada, "%d", &chave);
             fscanf(entrada, "\n");
-            remover(arv, chave);
+            deletar(arv, chave);
         }
 
         else if (comando == 'p') {
 
-            inOrder(arv -> raiz, saida);
+            printEmOrdem(arv -> raiz, saida);
             fprintf(saida, "\n");
             fscanf(entrada, "\n");
         }

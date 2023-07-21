@@ -7,7 +7,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/LuisHenriqueFernandesRamires",
-            "args": ["teste.txt"],
+            "args": ["test1.txt"],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc.exe build active file"
         }
