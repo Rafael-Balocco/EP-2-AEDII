@@ -214,6 +214,7 @@ void removeChave (NO* p, int chave, Arv * arv) {
     while (i < p -> numChaves && chave > p -> chave[i]) i++;
 
 
+
     if (p -> folha) { //ja na folha, so remover
 
         if (i < p -> numChaves && chave == p -> chave[i]) {

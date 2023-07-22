@@ -6,7 +6,7 @@
             "name": "Debugar Programa",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/LuisHenriqueFernandesRamires",
+            "program": "${workspaceFolder}/RafaelBalocco",
             "args": ["teste.txt"],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc.exe build active file"
