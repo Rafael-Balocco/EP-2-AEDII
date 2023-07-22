@@ -30,7 +30,7 @@ void split (NO* n1, int i, NO* n2);
 void insereDifCheio (NO* n, int chave) ;
 void insere (Arv* arv, int chave);
 NO* buscaFolha (NO* n);
-void removeChave (NO* p, int chave);
+void removeChave (NO* p, int chave, Arv * arv);
 void deletar (Arv* arv, int chave);
 void printEmOrdem (NO* no, FILE* saida);
 
@@ -206,13 +206,13 @@ NO* buscaFolha (NO* n) {
 }
 
 
-void removeChave (NO* p, int chave) {
+void removeChave (NO* p, int chave, Arv * arv) {
 
     int i = 0;
-    int j;
+    int j = 0;
 
     while (i < p -> numChaves && chave > p -> chave[i]) i++;
-    
+
 
     if (p -> folha) { //ja na folha, so remover
 
@@ -241,10 +241,10 @@ void removeChave (NO* p, int chave) {
 
                 p -> chave[i] = predecessor -> chave[predecessor -> numChaves - 1];
 
-                removeChave(n1, predecessor -> chave[predecessor -> numChaves - 1]);
+                removeChave(n1, predecessor -> chave[predecessor -> numChaves - 1], arv);
             }
             
-            else {
+            else { //vamos remover um cara da raiz
 
                 NO* n2 = p -> ponteiros[i + 1];
 
@@ -252,9 +252,9 @@ void removeChave (NO* p, int chave) {
 
                     NO* sucessor = buscaFolha(n2);
 
-                    p -> chave[i] = sucessor -> chave[0];
+                    p -> chave[i] = sucessor -> chave[1];
 
-                    removeChave(n2, sucessor -> chave[0]);
+                    removeChave(n2, sucessor -> chave[0], arv);
                 }
                 
                 else {
@@ -282,7 +282,7 @@ void removeChave (NO* p, int chave) {
 
                     p -> numChaves--;
 
-                    removeChave(n1, chave);
+                    removeChave(n1, chave, arv);
                 }
             }
         }
@@ -293,7 +293,7 @@ void removeChave (NO* p, int chave) {
 
                 NO* n2 = NULL;
 
-                if (i < p -> numChaves && p -> ponteiros[i + 1] -> numChaves >= t) {
+                if (i < p -> numChaves && p -> ponteiros[i + 1] -> numChaves >= t) { //checando direita
 
                     n2 = p -> ponteiros[i + 1];
 
@@ -318,73 +318,50 @@ void removeChave (NO* p, int chave) {
                 else if (i > 0 && p -> ponteiros[i - 1] -> numChaves >= t) { //checando o da esquerda
 
                     n2 = p -> ponteiros[i - 1];
-                    n2 -> chave[n2 -> numChaves] = p -> chave[i - 1];
-                    n2 -> ponteiros[n2 -> numChaves + 1] = n1 -> ponteiros[0];
-                    n2 -> numChaves++;
 
-                    n1 -> ponteiros[0] = NULL;
-                    p -> chave[i - 1] = n1 -> chave[0];
-
-                    for (j = 0; j < n1 -> numChaves - 1; j++)
-                        n1 -> chave[j] = n1 -> chave[j + 1];
+                    p -> chave [i-1] = n2 -> chave[(n2 -> numChaves)-1]; 
                     
-
-                    for (j = 0; j < n1 -> numChaves; j++) 
-                        n1 -> ponteiros[j] = n1 -> ponteiros[j + 1];
+                    n2->numChaves--;
                     
+                    NO * aux = p->ponteiros[i];
 
-                    n1 -> numChaves--;
+                    n1->chave[1] = n1 ->chave[0];
+                    
+                    n1->chave[0] = p -> chave [i-1];
+
                 }
 
 
-                if (n2 == NULL) {
+                if (n2 == NULL) { //esquerda e direita quase vazio
 
-                    if (i < p -> numChaves) {
-
-                        n2 = p -> ponteiros[i + 1];
- 
-                        n1 -> chave[t - 1] = p -> chave[i];
-                        n1 -> ponteiros[t] = n2 -> ponteiros[0];
-                        p -> chave[i] = n2 -> chave[0];
-
-                        for (j = 0; j < n2 -> numChaves - 1; j++) 
-                            n2 -> chave[j] = n2 -> chave[j + 1];
-                        
-
-                        for (j = 0; j < n2 -> numChaves; j++) 
-                            n2 -> ponteiros[j] = n2 -> ponteiros[j + 1];
-                        
-
-                        n2 -> numChaves--;
-                    }
-                    
-                    else {
-                        
                         n2 = p -> ponteiros[i - 1];
 
-                        for (j = n1 -> numChaves; j > 0; j--) 
-                            n1 -> chave[j] = n1 -> chave[j - 1];
-                        
+                        removeChave(n1, chave, arv);
 
-                        for (j = n1 -> numChaves + 1; j > 0; j--) 
-                            n1 -> ponteiros[j] = n1 -> ponteiros[j - 1];
-                        
+                        j = i-1;
 
-                        n1 -> chave[0] = p -> chave[i - 1];
-                        n1 -> ponteiros[0] = n2 -> ponteiros[n2 -> numChaves];
+                        n2->chave[n2->numChaves] = n1->chave[0];
+                        n2->numChaves++;
 
-                        p -> chave[i - 1] = n2 -> chave[n2 -> numChaves - 1];
 
-                        n2 -> chave[n2 -> numChaves - 1] = 0;
-                        n2 -> ponteiros[n2 -> numChaves] = NULL;
-                        n2 -> numChaves--;
-                    }
+                        for (j; j < p->numChaves ; j++){
+                            p->chave[j] = p->chave[j+1];
+                        }
+                        p->numChaves --;
+
+                        int aux = i;
+
+                        for(aux ; aux < (p->numChaves)+1 ; aux++){
+                            p->ponteiros[aux] = p->ponteiros[aux+1];
+                        }                        
+
+                        n2->prox = n1->prox;
+
                 }
-                n1 -> numChaves++;
-                removeChave(n1, chave);
+                removeChave(n1, chave, arv);
             }
             
-            else removeChave(n1, chave);
+            else removeChave(n1, chave, arv);
         }
     }
 }
@@ -397,7 +374,7 @@ void deletar (Arv* arv, int chave) {
 
     if (raiz -> numChaves == 0) return;
 
-    removeChave(raiz, chave);
+    removeChave(raiz, chave, arv);
 
     if (raiz -> numChaves == 0 && !(raiz -> folha)) {
 
@@ -497,6 +474,12 @@ int main (int argc, char* argv[]) {
 
             fscanf(entrada, "%d", &chave);
             fscanf(entrada, "\n");
+            if (chave == 16){
+            
+                int z = 8;
+            
+            }
+
             deletar(arv, chave);
         }
 
